@@ -51,7 +51,8 @@ async function getAISuggestions(code) {
     - Provide a corrected version if needed
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+
     const response = await model.generateContent(prompt);
     return response.response.text();
 }
