@@ -55,6 +55,7 @@ async function getAISuggestions(code) {
     const response = await model.generateContent(prompt);
     return response.response.text();
 }
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
