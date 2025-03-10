@@ -66,6 +66,10 @@ async function getAISuggestions(code) {
     }
 }
 
+// Handle favicon requests (optional)
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-app.listen(PORT,
+// Ensure the server starts properly
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
