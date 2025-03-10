@@ -33,8 +33,8 @@ app.post("/analyze", async (req, res) => {
         const aiResponse = await getAISuggestions(code);
         res.json({ analysis: aiResponse });
     } catch (error) {
-        console.error("Error with Gemini API:", error);
-        res.status(500).json({ error: "AI analysis failed." });
+        console.error("Error with Gemini API:", error.message || error);
+        res.status(500).json({ error: "AI analysis failed. Please try again later." });
     }
 });
 
@@ -51,14 +51,21 @@ async function getAISuggestions(code) {
     - Provide a corrected version if needed
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-
-    const response = await model.generateContent(prompt);
-    return response.response.text();
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const response = await model.generateContent(prompt);
+        
+        if (response && response.response && response.response.text) {
+            return response.response.text();
+        } else {
+            throw new Error("Invalid AI response format");
+        }
+    } catch (err) {
+        console.error("Gemini API Error:", err.message || err);
+        throw new Error("Failed to generate AI suggestions.");
+    }
 }
+
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT,
