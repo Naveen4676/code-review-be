@@ -30,8 +30,8 @@ app.post("/analyze", async (req, res) => {
     }
 
     try {
-        const aiResponse = await getAISuggestions(code);
-        res.json({ analysis: aiResponse });
+        const { analysis, correctedCode } = await getAISuggestions(code);
+        res.json({ analysis, corrected_code: correctedCode });
     } catch (error) {
         console.error("Error with Gemini API:", error.message || error);
         res.status(500).json({ error: "AI analysis failed. Please try again later." });
@@ -49,6 +49,7 @@ async function getAISuggestions(code) {
     - Suggest improvements
     - Optimize performance
     - Provide a corrected version if needed
+    - Return the corrected version separately
     `;
 
     try {
@@ -56,7 +57,13 @@ async function getAISuggestions(code) {
         const response = await model.generateContent(prompt);
         
         if (response && response.response && response.response.text) {
-            return response.response.text();
+            const textResponse = response.response.text();
+
+            // Extract the corrected code
+            const correctedCodeMatch = textResponse.match(/Corrected Code:\n```python\n([\s\S]*?)```/);
+            const correctedCode = correctedCodeMatch ? correctedCodeMatch[1] : "No correction provided.";
+
+            return { analysis: textResponse, correctedCode };
         } else {
             throw new Error("Invalid AI response format");
         }
